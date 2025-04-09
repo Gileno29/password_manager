@@ -1,29 +1,32 @@
 package main
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
 	"fmt"
+	"log"
 	"password-manager/models"
 	"password-manager/utils"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
 	var user models.User
 
 	user.SetUsername("gileno")
-	user.SetPassword("1234")
+
+	pass, err := utils.GeneratePassword(20, true, true, true)
+
+	if err != nil {
+		log.Fatal("Erro ao gerar senha")
+	}
+	user.SetPassword(pass)
 
 	fmt.Println(user.GetPassworld())
 
-	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	/*privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		panic(err)
-	}
+	}*/
 
-	publicKey := &privateKey.PublicKey
+	/*publicKey := &privateKey.PublicKey
 
 	encrypted, err := utils.EncryptPasswordWithKey(user.GetPassworld(), publicKey)
 	if err != nil {
@@ -47,5 +50,6 @@ func main() {
 		println("Senha inválida!")
 	} else {
 		println("Senha válida!")
-	}
+	}*/
+
 }
