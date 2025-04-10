@@ -15,6 +15,11 @@ func LoadComands() []*cobra.Command {
 	return comands
 }
 
+var (
+	l       int
+	u, s, d bool
+)
+
 func GeneratePassword() {
 
 	var cmd = &cobra.Command{
@@ -34,9 +39,12 @@ func GeneratePassword() {
 		},
 	}
 
-	cmd.Flags().StringVarP(&l, "passworld length", "l", "", "Tamanho do password")
-	cmd.Flags().StringVarP(&u, "use uper letters", "u", "", "Uper case ")
-	cmd.Flags().StringVarP(&s, "use especial caracters", "s", "", "Caracteres especiais")
-	cmd.Flags().StringVarP(&d, "use digits", "s", "", "Digitos na senha")
+	/*v, _ := cmd.Flags().GetInt("l")
+	l = v*/
+
+	cmd.Flags().IntVarP(&l, "passworld length", "l", 8, "Tamanho do password")
+	cmd.Flags().BoolVarP(&u, "use uper letters", "u", true, "Uper case ")
+	cmd.Flags().BoolVarP(&s, "use especial caracters", "s", true, "Caracteres especiais")
+	cmd.Flags().BoolVarP(&d, "use digits", "s", true, "Digitos na senha")
 	comands = append(comands, cmd)
 }

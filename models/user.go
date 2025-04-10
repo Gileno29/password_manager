@@ -1,13 +1,10 @@
 package models
 
-type Animal interface {
-	fala() string
-	quantidadePatas() int
-}
-
 type User struct {
 	Username string
 	Password string
+	Token    string
+	Tipo     Conta
 }
 
 func (u *User) GetUsername() string {
