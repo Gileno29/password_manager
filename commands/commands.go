@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -15,6 +16,7 @@ import (
 var comands []*cobra.Command
 
 func LoadComands() []*cobra.Command {
+	GeneratePassword()
 
 	return comands
 }
@@ -41,14 +43,14 @@ func GeneratePassword() {
 
 			fmt.Println(pass)
 
-			user_ := models.NewUser(pass, user, "", models.NewConta("sem titpo", "sem descricao"))
+			user_ := models.NewUser(user, pass, "", models.NewConta("sem titpo", "sem descricao"))
 
 			db, _ := database.NewMongoConection(os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST")).Connect()
 
 			repo := repository.NewUserRepository(db)
 
 			repo.Create(*user_)
-			defer db.Client().Disconnect(cmd.Context())
+			defer db.Client().Disconnect(context.Background())
 
 		},
 	}
@@ -59,10 +61,12 @@ func GeneratePassword() {
 	cmd.Flags().IntVarP(&l, "passworld length", "l", 8, "Tamanho do password")
 	cmd.Flags().BoolVarP(&u, "use uper letters", "u", true, "Uper case ")
 	cmd.Flags().BoolVarP(&s, "use especial caracters", "s", true, "Caracteres especiais")
-	cmd.Flags().BoolVarP(&d, "use digits", "s", true, "Digitos na senha")
+	cmd.Flags().BoolVarP(&d, "use digits", "d", true, "Digitos na senha")
+	cmd.Flags().StringVarP(&user, "user", "o", "", "Digitos na senha")
 	comands = append(comands, cmd)
 }
 
+/*
 func CreateUser() {
 
 	var cmd = &cobra.Command{
@@ -85,11 +89,11 @@ func CreateUser() {
 	/*v, _ := cmd.Flags().GetInt("l")
 	l = v*/
 
-	cmd.Flags().IntVarP(&l, "passworld length", "l", 8, "Tamanho do password")
+/*	cmd.Flags().IntVarP(&l, "passworld length", "l", 8, "Tamanho do password")
 	cmd.Flags().BoolVarP(&u, "use uper letters", "u", true, "Uper case ")
 	cmd.Flags().BoolVarP(&s, "use especial caracters", "s", true, "Caracteres especiais")
 	cmd.Flags().BoolVarP(&d, "use digits", "s", true, "Digitos na senha")
 	cmd.Flags().StringVarP(&user, "create a username", "user", "", "usuario")
 	comands = append(comands, cmd)
 
-}
+}*/
