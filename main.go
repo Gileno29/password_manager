@@ -1,37 +1,24 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"log"
-	"os"
-	"time"
+	"password-manager/commands"
 
-	"password-manager/database"
+	"github.com/spf13/cobra"
 )
+
+var rootCommand = &cobra.Command{
+	Use:   "etl",
+	Short: "Uma aplicação CLI para registro de passwords",
+}
 
 func main() {
 
-	mongo := database.NewMongoConection(os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST"))
+	comands := commands.LoadComands()
+	for i := 0; i < len(comands); i++ {
+		rootCommand.AddCommand(comands[i])
 
-	conection, err := mongo.Connect()
-
-	if err != nil {
-		log.Fatal("Erro ao se conectar no banco de dados ", err)
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	defer conection.Client().Disconnect(ctx)
-	err = conection.CreateCollection(ctx, "teste")
-
-	if err != nil {
-		log.Fatal("Erro ao criar a colection", err)
-	}
-
-	collection := conection.Collection("teste")
-	fmt.Println("Colecao", collection.Database().Name())
+	rootCommand.Execute()
 
 	/*privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {

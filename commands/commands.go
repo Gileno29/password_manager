@@ -3,7 +3,10 @@ package commands
 import (
 	"fmt"
 	"log"
+	"os"
+	"password-manager/database"
 	"password-manager/models"
+	"password-manager/repository"
 	"password-manager/utils"
 
 	"github.com/spf13/cobra"
@@ -38,7 +41,14 @@ func GeneratePassword() {
 
 			fmt.Println(pass)
 
-			user_ := models.NewUser(pass, user, "", &models.Conta{Tipo: "sem titpo", Descricao: "sem descricao"})
+			user_ := models.NewUser(pass, user, "", models.NewConta("sem titpo", "sem descricao"))
+
+			db, _ := database.NewMongoConection(os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST")).Connect()
+
+			repo := repository.NewUserRepository(db)
+
+			repo.Create(*user_)
+			defer db.Client().Disconnect(cmd.Context())
 
 		},
 	}

@@ -49,11 +49,6 @@ func (c *MongoConection) Connect() (*mongo.Database, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	/*defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			log.Fatal(err)
-		}
-	}()*/
 
 	// Testar a conexão
 	err = client.Ping(ctx, readpref.Primary())
