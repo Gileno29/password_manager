@@ -1,25 +1,37 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
-	"password-manager/models"
-	"password-manager/utils"
+	"os"
+	"time"
+
+	"password-manager/database"
 )
 
 func main() {
-	var user models.User
 
-	user.SetUsername("gileno")
+	mongo := database.NewMongoConection(os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST"))
 
-	pass, err := utils.GeneratePassword(20, true, true, true)
+	conection, err := mongo.Connect()
 
 	if err != nil {
-		log.Fatal("Erro ao gerar senha")
+		log.Fatal("Erro ao se conectar no banco de dados ", err)
 	}
-	user.SetPassword(pass)
 
-	fmt.Println(user.GetPassworld())
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	defer conection.Client().Disconnect(ctx)
+	err = conection.CreateCollection(ctx, "teste")
+
+	if err != nil {
+		log.Fatal("Erro ao criar a colection", err)
+	}
+
+	collection := conection.Collection("teste")
+	fmt.Println("Colecao", collection.Database().Name())
 
 	/*privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {

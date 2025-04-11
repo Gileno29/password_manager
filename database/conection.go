@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -13,16 +14,31 @@ import (
 
 var DB *mongo.Database
 
-func Connect() {
-	var (
-		user     string
-		password string
-		dbName   string
-		host     string
-	)
+type MongoConection struct {
+	User     string
+	Password string
+	DbName   string
+	Host     string
+}
 
-	uri := "mongodb://usuario:senha@localhost:27017"
-	dbName = "nome_do_banco"
+func NewMongoConection(user string, password string, dbName string, host string) *MongoConection {
+
+	return &MongoConection{
+		User:     user,
+		Password: password,
+		DbName:   dbName,
+		Host:     host,
+	}
+
+}
+func (c *MongoConection) Connect() (*mongo.Database, error) {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Erro ao carregar o arquivo .env: ", err)
+	}
+
+	uri := "mongodb://" + c.User + ":" + c.Password + "@" + c.Host + ":27017"
 
 	// Criar contexto com timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -33,11 +49,11 @@ func Connect() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer func() {
+	/*defer func() {
 		if err = client.Disconnect(ctx); err != nil {
 			log.Fatal(err)
 		}
-	}()
+	}()*/
 
 	// Testar a conexão
 	err = client.Ping(ctx, readpref.Primary())
@@ -47,12 +63,9 @@ func Connect() {
 
 	fmt.Println("Conexão com MongoDB estabelecida com sucesso!")
 
-	// Acessar um banco de dados e coleção
-	database := client.Database(dbName)
-	collection := database.Collection("nome_da_colecao")
-
-	// Agora você pode usar a variável 'collection' para operações CRUD
-	fmt.Printf("Coleção %s acessada\n", collection.Name())
+	database := client.Database(c.DbName)
 	DB = database
+
+	return DB, nil
 
 }
